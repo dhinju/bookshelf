@@ -41,7 +41,7 @@ const showCoffees = () => {
   let output = "";
   coffees.forEach(
     ({ name, image }) =>
-      (output += `
+    (output += `
               <div class="card">
                 <img class="card--avatar" src=${image} />
                 <h1 class="card--title">${name}</h1>
@@ -55,10 +55,35 @@ const showCoffees = () => {
 document.addEventListener("DOMContentLoaded", showCoffees);
 
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", function() {
+  window.addEventListener("load", function () {
     navigator.serviceWorker
       .register("/serviceWorker.js")
       .then(res => console.log("service worker registered"))
       .catch(err => console.log("service worker not registered", err));
   });
 }
+
+function domReady(fn) {
+  if (
+    document.readyState === "complete" ||
+    document.readyState === "interactive"
+  ) {
+    setTimeout(fn, 1000);
+  } else {
+    document.addEventListener("DOMContentLoaded", fn);
+  }
+}
+
+domReady(function () {
+
+  // If found you qr code
+  function onScanSuccess(decodeText, decodeResult) {
+    alert("You Qr is : " + decodeText, decodeResult);
+  }
+
+  let htmlscanner = new Html5QrcodeScanner(
+    "my-qr-reader",
+    { fps: 10, qrbos: 250 }
+  );
+  htmlscanner.render(onScanSuccess);
+});
