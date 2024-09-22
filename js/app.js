@@ -21,12 +21,22 @@ function startScanning() {
       formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13] // Restrict to EAN-13 format
     },
     (decodedText, decodedResult) => {
-      alert(`Detected barcode: ${decodedText}`);
+      if (!/^\d{13}$/.test(decodedText)) {
+        console.error("Invalid ISBN code detected:", decodedText);
+        return;
+      }
       $.ajax({
         url: 'https://bookshelf-server-2jcp.onrender.com/fetch-isbn?isbn=' + decodedText,
         type: 'GET',
         dataType: "json",
         success: function (json) {
+          const output = `
+              <div class="card">
+                <img class="card--avatar" src=${json.data.image} />
+                <h1 class="card--title">${json.data.name}</h1>
+                <a class="card--link" href="#">Taste</a>
+              </div>`;
+          $('.container').html(output);
           console.log(json);
         },
         error: function (xhr, status, error) {
@@ -41,6 +51,21 @@ function startScanning() {
   ).catch(err => {
     console.error("Error starting QR Code scanning:", err);
   });
+}
+
+// Function to toggle flash
+function toggleFlash() {
+  isFlashOn = !isFlashOn;
+  const constraints = {
+    advanced: [{ torch: isFlashOn }]
+  };
+  html5QrCode.applyVideoConstraints(constraints)
+    .then(() => {
+      document.getElementById('flash-toggle').textContent = isFlashOn ? 'Turn Off Flash' : 'Turn On Flash';
+    })
+    .catch(err => {
+      console.error("Error applying video constraints:", err);
+    });
 }
 
 window.onload = startScanning;
