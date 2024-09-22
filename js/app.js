@@ -37,14 +37,19 @@ function startScanning() {
                 <h1 class="card--title">${json.data.name}</h1>
                 <a class="card--link" href="#">View</a>
               </div>`;
+          $('#scan-again-btn').show(); // Show "Scan Again" button
           $('.container').html(output);
+          html5QrCode.stop().catch(err => console.error("Failed to stop scanning.", err)); // Stop scanning after detection
+          if (isFlashOn === true) {
+            isFlashOn = false;
+          }
           console.log(json);
         },
         error: function (xhr, status, error) {
           console.error('Error fetching the HTML:', error);
         }
       });
-      html5QrCode.stop().catch(err => console.error("Failed to stop scanning.", err)); // Stop scanning after detection
+
     },
     (errorMessage) => {
       // Optional: handle errors
@@ -67,6 +72,13 @@ function toggleFlash() {
     .catch(err => {
       console.error("Error applying video constraints:", err);
     });
+}
+
+
+function scanAgain() {
+  $('.container').html('');
+  $('#scan-again-btn').hide();// Hide "Scan Again" button
+  startScanning(); // Start scanning again
 }
 
 window.onload = startScanning;
