@@ -1,59 +1,3 @@
-const container = document.querySelector(".container");
-const coffees = [
-  {
-    name: "Perspiciatis",
-    image: "images/coffee1.jpg"
-  },
-  {
-    name: "Voluptatem",
-    image: "images/coffee2.jpg"
-  },
-  {
-    name: "Explicabo",
-    image: "images/coffee3.jpg"
-  },
-  {
-    name: "Rchitecto",
-    image: "images/coffee4.jpg"
-  },
-  {
-    name: " Beatae",
-    image: "images/coffee5.jpg"
-  },
-  {
-    name: " Vitae",
-    image: "images/coffee6.jpg"
-  },
-  {
-    name: "Inventore",
-    image: "images/coffee7.jpg"
-  },
-  {
-    name: "Veritatis",
-    image: "images/coffee8.jpg"
-  },
-  {
-    name: "Accusantium",
-    image: "images/coffee9.jpg"
-  }
-];
-const showCoffees = () => {
-  let output = "";
-  coffees.forEach(
-    ({ name, image }) =>
-    (output += `
-              <div class="card">
-                <img class="card--avatar" src=${image} />
-                <h1 class="card--title">${name}</h1>
-                <a class="card--link" href="#">Taste</a>
-              </div>
-              `)
-  );
-  container.innerHTML = output;
-};
-
-document.addEventListener("DOMContentLoaded", showCoffees);
-
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
     navigator.serviceWorker
@@ -63,61 +7,40 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-// function domReady(fn) {
-//   if (
-//     document.readyState === "complete" ||
-//     document.readyState === "interactive"
-//   ) {
-//     setTimeout(fn, 1000);
-//   } else {
-//     document.addEventListener("DOMContentLoaded", fn);
-//   }
-// }
+// Initialize the HTML5-QRCode reader
+const html5QrCode = new Html5Qrcode("barcode-reader");
 
-// domReady(function () {
+// Function to start scanning
+function startScanning() {
+  // Start the scanner with only barcode detection
+  html5QrCode.start(
+    { facingMode: "environment" }, // Use back camera
+    {
+      fps: 10,
+      qrbox: { width: 250, height: 250 },
+      formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13] // Restrict to EAN-13 format
+    },
+    (decodedText, decodedResult) => {
+      alert(`Detected barcode: ${decodedText}`);
+      $.ajax({
+        url: 'https://bookshelf-server-2jcp.onrender.com/fetch-isbn?isbn=' + decodedText,
+        type: 'GET',
+        dataType: "json",
+        success: function (json) {
+          console.log(json);
+        },
+        error: function (xhr, status, error) {
+          console.error('Error fetching the HTML:', error);
+        }
+      });
+      html5QrCode.stop().catch(err => console.error("Failed to stop scanning.", err)); // Stop scanning after detection
+    },
+    (errorMessage) => {
+      // Optional: handle errors
+    }
+  ).catch(err => {
+    console.error("Error starting QR Code scanning:", err);
+  });
+}
 
-//   // If found you qr code
-//   function onScanSuccess(decodeText, decodeResult) {
-//     // $.ajax({
-//     //   url: 'http://localhost:3000/fetch-html',
-//     //   type: 'GET',
-//     //   dataType: "json",
-//     //   success: function (json) {
-//     //     console.log(json);
-//     //   },
-//     //   error: function (xhr, status, error) {
-//     //     console.error('Error fetching the HTML:', error);
-//     //   }
-//     // });
-//     alert("You Qr is : " + decodeText, decodeResult);
-//   }
-
-//   let htmlscanner = new Html5QrcodeScanner(
-//     "my-qr-reader",
-//     { fps: 10, qrbos: 250 }
-//   );
-//   htmlscanner.render(onScanSuccess);
-// });
-
-
-Quagga.init({
-  inputStream: {
-    name: "Live",
-    type: "LiveStream",
-    target: document.querySelector('#my-qr-reader'), // Container to render the video stream
-  },
-  decoder: {
-    readers: ["ean_reader"] // ISBN-13 is a type of EAN-13 barcode
-  }
-}, function (err) {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  Quagga.start();
-});
-
-Quagga.onDetected(function (result) {
-  const isbn = result.codeResult.code;
-  alert("Detected ISBN:" + isbn);
-});
+window.onload = startScanning;
