@@ -9,6 +9,7 @@ if ("serviceWorker" in navigator) {
 
 // Initialize the HTML5-QRCode reader
 const html5QrCode = new Html5Qrcode("barcode-reader");
+let isFlashOn = false;
 
 // Function to start scanning
 function startScanning() {
@@ -34,7 +35,7 @@ function startScanning() {
               <div class="card">
                 <img class="card--avatar" src=${json.data.image} />
                 <h1 class="card--title">${json.data.name}</h1>
-                <a class="card--link" href="#">Taste</a>
+                <a class="card--link" href="#">View</a>
               </div>`;
           $('.container').html(output);
           console.log(json);
