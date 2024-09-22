@@ -15,7 +15,7 @@ let isFlashOn = false;
 function startScanning() {
   // Start the scanner with only barcode detection
   html5QrCode.start(
-    { facingMode: "environment" }, // Use back camera
+    { facingMode: { exact: "environment" } }, // Ensure back camera is used
     {
       fps: 10,
       qrbox: { width: 250, height: 250 },
