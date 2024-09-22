@@ -10,20 +10,21 @@ if ("serviceWorker" in navigator) {
 // Initialize the HTML5-QRCode reader
 const html5QrCode = new Html5Qrcode("barcode-reader");
 let isFlashOn = false;
+let currentZoom = 1.5; // Default zoom level
 
 // Function to start scanning
 function startScanning() {
   // Start the scanner with only barcode detection
   html5QrCode.start(
-    { facingMode: { exact: "environment" } }, // Ensure back camera is used
+    { facingMode: { exact: "environment" } }, // Use back camera
     {
       fps: 10,
       qrbox: { width: 250, height: 250 },
-      formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13], // Restrict to EAN-13 format
+      formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13],
       videoConstraints: {
-        width: { ideal: 1280 }, // Set ideal width
-        height: { ideal: 720 }, // Set ideal height
-        focusMode: "continuous" // Attempt continuous focus mode (not widely supported)
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        advanced: [{ zoom: currentZoom }] // Add zoom constraint
       }
     },
     (decodedText, decodedResult) => {
@@ -76,6 +77,21 @@ function toggleFlash() {
     })
     .catch(err => {
       console.error("Error applying video constraints:", err);
+    });
+}
+
+// Function to adjust zoom
+function adjustZoom() {
+  currentZoom = parseFloat(document.getElementById('zoom-level').value); // Get zoom level from input slider
+  const constraints = {
+    advanced: [{ zoom: currentZoom }]
+  };
+  html5QrCode.applyVideoConstraints(constraints)
+    .then(() => {
+      console.log(`Zoom level set to ${currentZoom}`);
+    })
+    .catch(err => {
+      console.error("Error applying zoom constraints:", err);
     });
 }
 
