@@ -63,27 +63,61 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-function domReady(fn) {
-  if (
-    document.readyState === "complete" ||
-    document.readyState === "interactive"
-  ) {
-    setTimeout(fn, 1000);
-  } else {
-    document.addEventListener("DOMContentLoaded", fn);
+// function domReady(fn) {
+//   if (
+//     document.readyState === "complete" ||
+//     document.readyState === "interactive"
+//   ) {
+//     setTimeout(fn, 1000);
+//   } else {
+//     document.addEventListener("DOMContentLoaded", fn);
+//   }
+// }
+
+// domReady(function () {
+
+//   // If found you qr code
+//   function onScanSuccess(decodeText, decodeResult) {
+//     // $.ajax({
+//     //   url: 'http://localhost:3000/fetch-html',
+//     //   type: 'GET',
+//     //   dataType: "json",
+//     //   success: function (json) {
+//     //     console.log(json);
+//     //   },
+//     //   error: function (xhr, status, error) {
+//     //     console.error('Error fetching the HTML:', error);
+//     //   }
+//     // });
+//     alert("You Qr is : " + decodeText, decodeResult);
+//   }
+
+//   let htmlscanner = new Html5QrcodeScanner(
+//     "my-qr-reader",
+//     { fps: 10, qrbos: 250 }
+//   );
+//   htmlscanner.render(onScanSuccess);
+// });
+
+
+Quagga.init({
+  inputStream: {
+    name: "Live",
+    type: "LiveStream",
+    target: document.querySelector('#my-qr-reader'), // Container to render the video stream
+  },
+  decoder: {
+    readers: ["ean_reader"] // ISBN-13 is a type of EAN-13 barcode
   }
-}
-
-domReady(function () {
-
-  // If found you qr code
-  function onScanSuccess(decodeText, decodeResult) {
-    alert("You Qr is : " + decodeText, decodeResult);
+}, function (err) {
+  if (err) {
+    console.error(err);
+    return;
   }
+  Quagga.start();
+});
 
-  let htmlscanner = new Html5QrcodeScanner(
-    "my-qr-reader",
-    { fps: 10, qrbos: 250 }
-  );
-  htmlscanner.render(onScanSuccess);
+Quagga.onDetected(function (result) {
+  const isbn = result.codeResult.code;
+  alert("Detected ISBN:" + isbn);
 });
