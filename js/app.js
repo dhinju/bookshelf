@@ -16,16 +16,11 @@ let currentZoom = 1.5; // Default zoom level
 function startScanning() {
   // Start the scanner with only barcode detection
   html5QrCode.start(
-    { facingMode: { exact: "environment" } }, // Use back camera
+    { facingMode: "environment" }, // Use back camera
     {
       fps: 10,
       qrbox: { width: 250, height: 250 },
-      formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13],
-      videoConstraints: {
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
-        advanced: [{ zoom: currentZoom }] // Add zoom constraint
-      }
+      formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13]
     },
     (decodedText, decodedResult) => {
       if (!/^\d{13}$/.test(decodedText)) {
