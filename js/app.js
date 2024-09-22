@@ -15,8 +15,8 @@ let isFlashOn = false;
 function startScanning() {
   // Start the scanner with only barcode detection
   html5QrCode.start(
+    { facingMode: "environment" }, // Use back camera
     {
-      facingMode: "environment", // Use back camera
       fps: 10,
       qrbox: { width: 250, height: 250 },
       formatsToSupport: [Html5QrcodeSupportedFormats.EAN_13], // Restrict to EAN-13 format
