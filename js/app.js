@@ -7,52 +7,6 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-
-// Start QuaggaJS barcode scanner
-Quagga.init({
-  inputStream: {
-    name: "Live",
-    type: "LiveStream",
-    target: document.querySelector('#barcode-reader'), // Container to render the video stream
-  },
-  decoder: {
-    readers: ["ean_reader"] // ISBN-13 is a type of EAN-13 barcode
-  }
-}, function (err) {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  Quagga.start();
-});
-
-// Listen for barcode detection
-Quagga.onDetected(function (result) {
-  const isbn = result.codeResult.code;
-  console.log("Detected ISBN:", isbn);
-  if (!/^\d{13}$/.test(decodedText)) {
-    console.error("Invalid ISBN code detected:", decodedText);
-    return;
-  }
-  $.ajax({
-    url: 'https://bookshelf-server-2jcp.onrender.com/fetch-isbn?isbn=' + decodedText,
-    type: 'GET',
-    dataType: "json",
-    success: function (json) {
-      const output = `
-          <div class="card">
-            <img class="card--avatar" src=${json.data.image} />
-            <h1 class="card--title">${json.data.name}</h1>
-            <a class="card--link" href="#">View</a>
-          </div>`;
-    },
-    error: function (xhr, status, error) {
-      console.error('Error fetching the HTML:', error);
-    }
-  });
-});
-
-
 // Initialize the HTML5-QRCode reader
 const html5QrCode = new Html5Qrcode("barcode-reader");
 let isFlashOn = false;
